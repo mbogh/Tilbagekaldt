@@ -1,0 +1,14 @@
+{
+    "applications": {
+        "Total Recall": {
+            "applicationId": "BfjCrISj7ZfOvYs9XAH7wBZNNPzVNwr3v2t0PuXp", 
+            "masterKey": "B8Soce3TmBwvWt0a1hCX4b85VrWdGz86UOVBrliS"
+        }, 
+        "_default": {
+            "link": "Total Recall"
+        }
+    }, 
+    "global": {
+        "parseVersion": "1.2.18"
+    }
+}
