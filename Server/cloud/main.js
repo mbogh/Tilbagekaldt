@@ -1,29 +1,4 @@
 var IncidentClass = Parse.Object.extend("Incident");
-Parse.Cloud.job("read_rss", function(request, status) {
-    login(request.params.username, request.params.password).then(function() {
-        var RSSParser = require('cloud/rssparser.js');
-        RSSParser.initialize('https://www.foedevarestyrelsen.dk/_layouts/feed.aspx?xsl=1&web=/&page=ecad1b68-d4b1-4648-95ca-e8d87e9d4c43&wp=eac01848-ff60-4224-bdc4-7a74d884aa50&pageurl=/Sider/TilbagetrukneFoedevarer.aspx', 'Incident');
-        RSSParser.parse(function() {
-            status.success("SUCCESSOR!");
-        },
-        function (httpResponse) {
-            status.error('Request failed with response code ' + httpResponse.status);
-        },
-        function(item) {
-            var processedItem = new Array();
-            var link = item['link'];
-            var n = link.lastIndexOf("/Arkiv-") + 1;
-            var uuid = link.slice(n);
-            uuid = uuid.replace('.aspx', '').replace('/', '-').toLowerCase();
-            console.log(item['title'] + ' ' + uuid);
-            processedItem['uuid'] = uuid;
-            processedItem['title'] = item['title'];
-            processedItem['url'] = item['link'];
-            processedItem['publishedAt'] =  new Date(item['pubDate']);
-            return processedItem;
-        });
-    }); 
-});
 
 var login = function(username, password) {
     console.log("login - Login with username: " + username);
@@ -44,7 +19,7 @@ var login = function(username, password) {
 Parse.Cloud.afterSave('Incident', function(request) {
     var incident = request.object;
     if (incident.existed()) return;
-	
+
     console.log("###############################");
     console.log("Cloud afterSave: Incident - Initiate");
     console.log("###############################");
@@ -55,7 +30,7 @@ Parse.Cloud.afterSave('Incident', function(request) {
     Parse.Push.send({
         channels: [ 'active' ],
         data: { alert: incident.get('title') }
-    }, 
+    },
     {
         success: function() {
             console.log("Cloud afterSave: Incident - Success");
