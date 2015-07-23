@@ -5,7 +5,8 @@
   "applications": {
     "Tilbagekaldt": {
       "applicationId": "s9c2YeZT2NkNMStF7CLnlWwkI4O8RKjOE7j9AqbC",
-      "masterKey": "k2Y4PegnYGy7dIN1XIYK1m0urS9OuYNcuOyuW2R5"
+      "masterKey": "k2Y4PegnYGy7dIN1XIYK1m0urS9OuYNcuOyuW2R5",
+      "javascriptKey": "Ki4TPgZxgaId18vhUogsjj8bvB9GvJ3TRjAcBA6N"
     },
     "_default": {
       "link": "Tilbagekaldt"
