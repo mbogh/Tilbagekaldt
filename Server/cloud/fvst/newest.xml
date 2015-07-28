@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <soap:Body>
+    <GetListItems xmlns="http://schemas.microsoft.com/sharepoint/soap/">
+      <listName>Sider</listName>
+      <rowLimit>20</rowLimit>
+      <query>
+        <Query>
+          <Where>
+            <Or>
+              <Eq>
+                <FieldRef Name="Nyhedstype"/>
+                <Value Type="Text">Tilbagetrukne fødevarer</Value>
+              </Eq>
+              <Eq>
+                <FieldRef Name="Dokumenttyper"/>
+                <Value Type="Text">Tilbagetrukne fødevarer</Value>
+              </Eq>
+            </Or>
+          </Where>
+          <OrderBy>
+            <FieldRef Ascending="FALSE" Name="ArticleDateTime"/>
+          </OrderBy>
+        </Query>
+      </query>
+      <viewFields>
+        <ViewFields Properties="True" xmlns="">
+          <FieldRef Name="ID"/>
+          <FieldRef Name="DocId"/>
+          <FieldRef Name="Title"/>
+          <FieldRef Name="LinkFilename"/>
+          <FieldRef Name="ArticleDateTime"/>
+          <FieldRef Name="Modified"/>
+          <FieldRef Name="ModerationStatus"/>
+          <FieldRef Name="Path"/>
+          <FieldRef Name="EncodedAbsUrl"/>
+          <FieldRef Name="MetaInfo"/>
+        </ViewFields>
+      </viewFields>
+      <queryOptions>
+        <QueryOptions xmlns="">
+          <IncludeMandatoryColumns>FALSE</IncludeMandatoryColumns>
+          <ViewFieldsOnly>TRUE</ViewFieldsOnly>
+          <ViewAttributes Scope="RecursiveAll"/>
+        </QueryOptions>
+      </queryOptions>
+    </GetListItems>
+  </soap:Body>
+</soap:Envelope>
