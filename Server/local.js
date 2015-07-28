@@ -30,5 +30,5 @@ Parse.Cloud.httpRequest = function(request) {
     });
 };
 
-var fvst = require('./cloud/fvst/fvst.js');
+var fvst = require('cloud/fvst/fvst.js');
 fvst.getAllIssues();
