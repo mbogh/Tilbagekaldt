@@ -1,4 +1,4 @@
-var IncidentClass = Parse.Object.extend("Incident");
+var IssueClass = Parse.Object.extend("Issue");
 
 var login = function(username, password) {
     console.log("login - Login with username: " + username);
@@ -16,27 +16,27 @@ var login = function(username, password) {
     return promise;
 }
 
-Parse.Cloud.afterSave('Incident', function(request) {
-    var incident = request.object;
-    if (incident.existed()) return;
+Parse.Cloud.afterSave('Issue', function(request) {
+    var issue = request.object;
+    if (issue.existed()) return;
 
     console.log("###############################");
-    console.log("Cloud afterSave: Incident - Initiate");
+    console.log("Cloud afterSave: Issue - Initiate");
     console.log("###############################");
     var now = new Date();
-    if (now.getTime() - incident.get('publishedAt').getTime() > 12*60*60*1000) return;
+    if (now.getTime() - issue.get('publishedAt').getTime() > 12*60*60*1000) return;
 
-    console.log("Cloud afterSave: Incident - Send push");
+    console.log("Cloud afterSave: Issue - Send push");
     Parse.Push.send({
         channels: [ 'active' ],
-        data: { alert: incident.get('title') }
+        data: { alert: issue.get('title') }
     },
     {
         success: function() {
-            console.log("Cloud afterSave: Incident - Success");
+            console.log("Cloud afterSave: Issue - Success");
         },
         error: function(error) {
-            console.log("Cloud afterSave: Incident - Failed with error: " + error);
+            console.log("Cloud afterSave: Issue - Failed with error: " + error);
         }
     });
 });
@@ -47,7 +47,7 @@ Parse.Cloud.job("fvst_all", function(request, status) {
     console.log("###############################");
     login(request.params.username, request.params.password).then(function() {
         var fvst = require('cloud/fvst.js');
-        fvst.getAllIncidents().then(function() {
+        fvst.getAllIssues().then(function() {
             console.log("Cloud Job: fvst_all - Ended with SUCCESS");
             status.success("Cloud Job: fvst_all - Ended with SUCCESS");
         }, function(error) {
@@ -63,7 +63,7 @@ Parse.Cloud.job("fvst_newest", function(request, status) {
     console.log("##################################");
     login(request.params.username, request.params.password).then(function() {
         var fvst = require('cloud/fvst.js');
-        fvst.getNewestIncidents().then(function() {
+        fvst.getNewestIssues().then(function() {
             console.log("Cloud Job: fvst_newest - Ended with SUCCESS");
             status.success("Cloud Job: fvst_newest - Ended with SUCCESS");
         }, function(error) {
@@ -92,18 +92,18 @@ var fixLinks = function() {
 	var promises = [];
 	var promise = new Parse.Promise();
 	promises.push(promise);
-	var IncidentClass = Parse.Object.extend("Incident");
+	var IssueClass = Parse.Object.extend("Issue");
 	var _ = require('underscore');
-	var query = new Parse.Query(IncidentClass);
+	var query = new Parse.Query(IssueClass);
 	query.limit(1000);
-	query.find().then(function(incidents) {
-		for (var i = 0; i < incidents.length; i++) {
-			var incident = incidents[i];
-			var content = incident.get("content");
+	query.find().then(function(issues) {
+		for (var i = 0; i < issues.length; i++) {
+			var issue = issues[i];
+			var content = issue.get("content");
 			if (content.indexOf("SiteCollectionDocuments") != -1) {
 				content = content.replace(/%20/gi, " ").replace(/\"\/SiteCollectionDocuments/gi, "\"http://www.foedevarestyrelsen.dk/SiteCollectionDocuments");
-				incident.set("content", content);
-				promises.push(incident.save());
+				issue.set("content", content);
+				promises.push(issue.save());
 			}
 		}
 		promise.resolve();

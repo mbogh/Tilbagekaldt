@@ -1,7 +1,8 @@
 (function() {
   var url = "http://www.foedevarestyrelsen.dk/Nyheder/Aktuelt/_vti_bin/Lists.asmx";
-  var Incident = require('cloud/incident.js');
+  var Issue = require('cloud/issue.js');
   var fs = require('fs');
+  var user = require('cloud/user.js');
 
   var SOAPMessage = function(filePath) {
     return fs.readFileSync(filePath, 'utf8');
@@ -32,11 +33,11 @@
           }
 
           var rows = res["soap:Envelope"]["soap:Body"].GetListItemsResponse.GetListItemsResult.listitems["rs:data"]["z:row"];
-          var incidents = [];
+          var issues = [];
           for (var i = 0; i < rows.count(); i++) {
-            incidents.push(rows.at(i).attributes());
+            issues.push(rows.at(i).attributes());
           }
-          promise.resolve(incidents);
+          promise.resolve(issues);
         });
       },
       error: function(httpResponse) {
@@ -46,39 +47,41 @@
     return promise;
   }
 
-  var SOAPResponse = function(incidents) {
-    LOG("Found " + incidents.length + " incidents");
-    LOG("Processing incidents...");
+  var SOAPResponse = function(issues) {
+    LOG("Found " + issues.length + " issues");
+    LOG("Processing issues...");
     var promises = [];
-    for (var i = 0; i < incidents.length; i++) {
-      if (i % 20 == 0) LOG("Processing " + i + "/" + incidents.length);
-      var data = incidents[i];
+    for (var i = 0; i < issues.length; i++) {
+      var data = issues[i];
+      if (i % 20 == 0 || LOCAL) LOG("Processing " + (i + 1) + "/" + issues.length + " - " + data.ows_Title);
       var uuid = data.ows_ID;
-      var incident = new Array();
-      incident["uuid"] = uuid;
-      incident["title"] = data.ows_Title;
-      incident["url"] = data.ows_EncodedAbsUrl.replace(/%20/gi, " ");
-      incident["publishedAt"] = data.ows_ArticleDateTime;
-      incident["modifiedAt"] = data.ows_Modified;
-      incident["content"] = data.ows_MetaInfo_PublishingPageContent;
-      incident["summary"] = data.ows_MetaInfo_PublishingPageManchet;
-      promises.push(Incident.updateIncident(uuid, incident));
+      var issue = new Array();
+      issue["uuid"] = uuid;
+      issue["title"] = data.ows_Title;
+      issue["url"] = data.ows_EncodedAbsUrl.replace(/%20/gi, " ");
+      issue["publishedAt"] = data.ows_ArticleDateTime;
+      issue["modifiedAt"] = data.ows_Modified;
+      issue["content"] = data.ows_MetaInfo_PublishingPageContent;
+      issue["summary"] = data.ows_MetaInfo_PublishingPageManchet;
+      promises.push(Issue.updateIssue(uuid, issue));
     };
     return Parse.Promise.when(promises);
   }
 
   var LOG = function(message) {
-    console.log("fvst - " + message);
+    console.log("FVST - " + message);
   }
 
   module.exports = {
     getAllIssues: function() {
-      LOG("Get all incidents");
+      LOG("Get all issues");
+      if (!user.isLoggedIn()) { LOG("Not logged In!!!"); return; }
+
       var allRequest = 'cloud/fvst/all.xml';
       return SOAPRequest(allRequest).then(SOAPResponse);
     },
     getNewestIssues: function() {
-      LOG("Get newest incidents");
+      LOG("Get newest issues");
       var newestRequest = 'cloud/fvst/newest.xml';
       return SOAPRequest(newestRequest).then(SOAPResponse);
     },

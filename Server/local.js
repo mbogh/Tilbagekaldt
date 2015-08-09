@@ -1,10 +1,14 @@
 process.env.NODE_PATH = __dirname;
 require('module').Module._initPaths();
+
+GLOBAL.LOCAL = true
+
 var unirest = require('unirest');
 
 var config = require('config/global.json');
 
 GLOBAL.Parse = require('parse').Parse;
+Parse.User.enableUnsafeCurrentUser();
 Parse.initialize(config.applications.Tilbagekaldt.applicationId, config.applications.Tilbagekaldt.javascriptKey);
 
 Parse.Cloud.httpRequest = function(request) {
@@ -30,5 +34,8 @@ Parse.Cloud.httpRequest = function(request) {
     });
 };
 
-var fvst = require('cloud/fvst/fvst.js');
-fvst.getAllIssues();
+var user = require('cloud/user.js');
+user.login('root', 'vr4DujsoNNv3dTJ').then(function() {
+  var fvst = require('cloud/fvst/fvst.js');
+  fvst.getAllIssues();
+});
